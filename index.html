@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Локальный AI-чат</title>
+  <style>
+    /* Общие стили */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f2f2f2;
+      color: #333;
+    }
+
+    h1, h3 {
+      font-weight: 600;
+    }
+
+    /* Контейнер приложения */
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* Верхний блок с вводом имени */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      margin-bottom: 20px;
+    }
+
+    .top-bar label {
+      margin-right: 10px;
+    }
+
+    .top-bar input {
+      width: 200px;
+      padding: 8px;
+      margin-right: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .top-bar button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      background-color: #4B9CE2;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .top-bar button:hover {
+      background-color: #2a7aba;
+    }
+
+    /* Основной блок с сайдбаром и чатом */
+    .main-content {
+      display: flex;
+      gap: 20px;
+    }
+
+    /* Сайдбар со списком пользователей */
+    .sidebar {
+      width: 250px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      padding: 20px;
+      flex-shrink: 0;
+    }
+
+    .sidebar h3 {
+      margin-bottom: 10px;
+      color: #555;
+    }
+
+    .sidebar ul {
+      list-style: none;
+    }
+
+    .sidebar li {
+      padding: 10px;
+      margin-bottom: 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .sidebar li:hover {
+      background-color: #f2f2f2;
+    }
+
+    /* Область чата */
+    .chat-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      padding: 20px;
+    }
+
+    .chat-header {
+      margin-bottom: 20px;
+    }
+
+    .chat-header span {
+      color: #4B9CE2;
+    }
+
+    /* Блок сообщений */
+    .message-box {
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 10px;
+      margin-bottom: 20px;
+    }
+
+    /* Отдельные сообщения */
+    .message-row {
+      margin-bottom: 15px;
+      display: flex;
+      flex-direction: column;
+      max-width: 75%;
+    }
+
+    /* сообщение от меня (Вы) */
+    .fromYou-bubble {
+      align-self: flex-end;
+      background-color: #daf8cb;
+      border-radius: 10px 10px 0 10px;
+      padding: 10px;
+      margin-left: auto;
+    }
+
+    /* сообщение от собеседника */
+    .fromOther-bubble {
+      align-self: flex-start;
+      background-color: #eee;
+      border-radius: 10px 10px 10px 0;
+      padding: 10px;
+      margin-right: auto;
+    }
+
+    .fromYou-label,
+    .fromOther-label {
+      font-size: 0.85rem;
+      margin-bottom: 3px;
+      color: #777;
+    }
+
+    /* Инпут для отправки сообщений */
+    .input-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .input-box input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+
+    .input-box button {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 4px;
+      background-color: #4B9CE2;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .input-box button:hover {
+      background-color: #2a7aba;
+    }
+
+    /* Блок с управлением ИИ */
+    .ai-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .ai-controls button {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 4px;
+      background-color: #f0b429;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .ai-controls button:hover {
+      background-color: #c98816;
+    }
+
+    /* Блок "Предложение ИИ" */
+    .ai-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .ai-box label {
+      white-space: nowrap;
+    }
+
+    .ai-box input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      background-color: #f9f9f9;
+    }
+
+    .ai-box button {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 4px;
+      background-color: #f0b429;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .ai-box button:hover {
+      background-color: #c98816;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <h1>Локальный AI-чат</h1>
+
+    <!-- Ввод имени и кнопка "Подключиться" -->
+    <div class="top-bar">
+      <label>Введите ваше имя: </label>
+      <input type="text" id="usernameInput" />
+      <button onclick="connectWS()">Подключиться</button>
+    </div>
+
+    <div class="main-content">
+      <!-- Список пользователей (Сайдбар) -->
+      <div class="sidebar" id="userList">
+        <h3>Онлайн:</h3>
+        <ul id="users"></ul>
+      </div>
+
+      <!-- Чат -->
+      <div class="chat-container" id="chatArea">
+        <div class="chat-header">
+          <h3>Чат с <span id="currentChatUser">(никого)</span></h3>
+        </div>
+
+        <div class="message-box" id="messageBox"></div>
+
+        <!-- Отправка своего сообщения -->
+        <div class="input-box">
+          <input type="text" id="messageInput" placeholder="Ваше сообщение" />
+          <button onclick="sendMessage()">Отправить</button>
+        </div>
+
+        <!-- Управление ИИ и погодой -->
+        <div class="ai-controls">
+          <button onclick="generateAiMessage()">Сгенерировать ответ</button>
+          <button onclick="requestWeather()">Узнать погоду</button>
+        </div>
+
+        <!-- Поле с предложением ИИ -->
+        <div class="ai-box">
+          <label>Предложение ИИ:</label>
+          <input type="text" id="aiResponseField" readonly />
+          <button id="sendAiBtn" onclick="sendAiToChat()" disabled>Отправить</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let ws = null;
+    let currentUser = null;
+    let selectedUser = null;
+
+    function connectWS() {
+      currentUser = document.getElementById('usernameInput').value.trim();
+      if (!currentUser) {
+        alert("Введите имя!");
+        return;
+      }
+      ws = new WebSocket(`ws://${location.host}/ws`);
+      ws.onopen = () => {
+        console.log("WS opened");
+        // Отправляем user_name
+        ws.send(JSON.stringify({ user_name: currentUser }));
+      };
+      ws.onmessage = (ev) => {
+        const data = JSON.parse(ev.data);
+        switch (data.type) {
+          case "user_list":
+            updateUserList(data.users);
+            break;
+          case "chat_history":
+            renderChatHistory(data.chat);
+            break;
+          case "receive_message":
+            onReceiveMessage(data.from_user, data.message);
+            break;
+          case "ai_generated":
+            onAiGenerated(data.message);
+            break;
+          case "receive_weather":
+            onReceiveMessage(data.from_user, data.message);
+            break;
+          default:
+            console.log("Неизвестный тип:", data.type);
+        }
+      };
+      ws.onclose = () => {
+        alert("Соединение закрыто!");
+      };
+    }
+
+    function updateUserList(users) {
+      const ul = document.getElementById('users');
+      ul.innerHTML = '';
+      users.forEach(u => {
+        if (u === currentUser) return;
+        const li = document.createElement('li');
+        li.textContent = u;
+        li.onclick = () => openChat(u);
+        ul.appendChild(li);
+      });
+    }
+
+    function openChat(u) {
+      selectedUser = u;
+      document.getElementById('currentChatUser').textContent = u;
+      document.getElementById('messageBox').innerHTML = '';
+      document.getElementById('aiResponseField').value = '';
+      document.getElementById('sendAiBtn').disabled = true;
+
+      // Запросить историю
+      ws.send(JSON.stringify({
+        type: "request_chat_history",
+        from_user: currentUser,
+        to_user: selectedUser
+      }));
+    }
+
+    function renderChatHistory(chat) {
+      const box = document.getElementById('messageBox');
+      box.innerHTML = '';
+      chat.forEach(msg => {
+        const div = document.createElement('div');
+        div.classList.add('message-row');
+
+        if (msg.from_you) {
+          div.innerHTML = `
+            <div class="fromYou-label">Вы:</div>
+            <div class="fromYou-bubble">${msg.message}</div>
+          `;
+          div.style.alignSelf = 'flex-end';
+        } else {
+          div.innerHTML = `
+            <div class="fromOther-label">Собеседник:</div>
+            <div class="fromOther-bubble">${msg.message}</div>
+          `;
+          div.style.alignSelf = 'flex-start';
+        }
+        box.appendChild(div);
+      });
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function onReceiveMessage(fromUser, message) {
+      // Если мы в чате с этим user'ом или "System"
+      if (selectedUser === fromUser || fromUser === "System") {
+        const box = document.getElementById('messageBox');
+        const div = document.createElement('div');
+        div.classList.add('message-row');
+
+        div.innerHTML = `
+          <div class="fromOther-label">${fromUser}:</div>
+          <div class="fromOther-bubble">${message}</div>
+        `;
+        box.appendChild(div);
+        box.scrollTop = box.scrollHeight;
+      } else {
+        // Вы не в чате с этим пользователем
+        alert(`Новое сообщение от ${fromUser}: ${message}`);
+      }
+    }
+
+    // Пришёл сгенерированный моделью ответ
+    function onAiGenerated(aiText) {
+      const aiField = document.getElementById('aiResponseField');
+      aiField.value = aiText;
+      document.getElementById('sendAiBtn').disabled = false;
+    }
+
+    // Отправить обычное сообщение
+    function sendMessage() {
+      if (!ws || ws.readyState !== WebSocket.OPEN) return;
+      if (!selectedUser) {
+        alert("Сначала выберите собеседника!");
+        return;
+      }
+      const inp = document.getElementById('messageInput');
+      const text = inp.value.trim();
+      if (!text) return;
+
+      ws.send(JSON.stringify({
+        type: "send_message",
+        from_user: currentUser,
+        to_user: selectedUser,
+        message: text
+      }));
+
+      // Сразу показываем у себя
+      const box = document.getElementById('messageBox');
+      const div = document.createElement('div');
+      div.classList.add('message-row');
+      div.innerHTML = `
+        <div class="fromYou-label">Вы:</div>
+        <div class="fromYou-bubble">${text}</div>
+      `;
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+      inp.value = '';
+    }
+
+    // Нажатие на кнопку "Сгенерировать ответ"
+    function generateAiMessage() {
+      if (!ws || ws.readyState !== WebSocket.OPEN) return;
+      if (!selectedUser) {
+        alert("Сначала выберите собеседника!");
+        return;
+      }
+      ws.send(JSON.stringify({
+        type: "generate_ai_answer",
+        from_user: currentUser,
+        to_user: selectedUser
+      }));
+    }
+
+    // Когда пользователь решает отправить предложенный ответ в чат
+    function sendAiToChat() {
+      const aiField = document.getElementById('aiResponseField');
+      const text = aiField.value.trim();
+      if (!text) return;
+      if (!selectedUser) {
+        alert("Выберите собеседника!");
+        return;
+      }
+
+      // Отправляем на сервер
+      ws.send(JSON.stringify({
+        type: "send_ai_to_chat",
+        from_user: currentUser,
+        to_user: selectedUser,
+        message: text,
+        as_user: true
+      }));
+
+      // Отобразить сразу у себя
+      const box = document.getElementById('messageBox');
+      const div = document.createElement('div');
+      div.classList.add('message-row');
+      div.innerHTML = `
+        <div class="fromYou-label">Вы:</div>
+        <div class="fromYou-bubble">${text}</div>
+      `;
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+
+      aiField.value = "";
+      document.getElementById('sendAiBtn').disabled = true;
+    }
+
+    // "Узнать погоду"
+    function requestWeather() {
+      if (!ws || ws.readyState !== WebSocket.OPEN) return;
+      if (!selectedUser) {
+        alert("Сначала выберите собеседника!");
+        return;
+      }
+      ws.send(JSON.stringify({
+        type: "request_weather",
+        from_user: currentUser,
+        to_user: selectedUser
+      }));
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+{
+    "('Diana', 'Mary')": [
+        {
+            "message": "Hello! How are you today?",
+            "from_you": true
+        },
+        {
+            "message": "I`m fine. What about you?",
+            "from_you": true
+        },
+        {
+            "message": "Can we go to a movie?",
+            "from_you": true
+        },
+        {
+            "message": "Do you like Deadpool?",
+            "from_you": true
+        },
+        {
+            "message": ":I like Deadpool! My favorite scenes with Deadpool include the fight scenes in X-Men Origins: Wolverine, the team-up in The Avengers, and the scenes in the Marvel movies overall.",
+            "from_you": true
+        },
+        {
+            "message": "Сейчас в Перми -1°. Пасмурно",
+            "from_you": false
+        },
+        {
+            "message": "Cool! But it`s cold today. Dont forget your hat",
+            "from_you": true
+        },
+        {
+            "message": "Sure :))",
+            "from_you": true
+        }
+    ]
+}
